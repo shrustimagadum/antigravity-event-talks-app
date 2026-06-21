@@ -290,8 +290,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                       state.selectedItem.text === update.text;
                     
                     itemEl.className = `update-item ${isSelected ? 'selected' : ''}`;
+                    const displayedHtml = highlightHtml(update.rawHtml, state.filters.search);
                     itemEl.innerHTML = `
-                        <p>${update.rawHtml}</p>
+                        <p>${displayedHtml}</p>
                         <div class="item-actions">
                             <button class="copy-btn" title="Copy text to clipboard">
                                 <i data-lucide="copy" style="width:14px;height:14px;"></i>
@@ -551,5 +552,60 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    // Highlight matching search terms inside HTML text content safely (bypassing attributes)
+    function highlightHtml(htmlContent, searchPhrase) {
+        if (!searchPhrase) return htmlContent;
+        
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = htmlContent;
+        
+        // Escape special regex characters in the search phrase
+        const escapedSearch = searchPhrase.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        const regex = new RegExp(`(${escapedSearch})`, 'gi');
+        
+        const highlightNodes = (node) => {
+            if (node.nodeType === 3) { // Text node
+                const text = node.nodeValue;
+                if (regex.test(text)) {
+                    const fragment = document.createDocumentFragment();
+                    let lastIndex = 0;
+                    
+                    // Reset regex search pointer
+                    regex.lastIndex = 0;
+                    
+                    text.replace(regex, (match, p1, offset) => {
+                        // Append text leading up to match
+                        if (offset > lastIndex) {
+                            fragment.appendChild(document.createTextNode(text.substring(lastIndex, offset)));
+                        }
+                        // Append highlighted term wrapped in <mark> tag
+                        const mark = document.createElement('mark');
+                        mark.textContent = match;
+                        fragment.appendChild(mark);
+                        
+                        lastIndex = offset + match.length;
+                    });
+                    
+                    // Append remaining text
+                    if (lastIndex < text.length) {
+                        fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+                    }
+                    
+                    node.parentNode.replaceChild(fragment, node);
+                }
+            } else if (node.nodeType === 1) { // Element node
+                // Avoid double-highlighting existing marks or code/script elements
+                if (node.tagName.toLowerCase() !== 'mark' && node.tagName.toLowerCase() !== 'script') {
+                    // Clone childNodes array since replacing nodes affects live collections
+                    const children = Array.from(node.childNodes);
+                    children.forEach(child => highlightNodes(child));
+                }
+            }
+        };
+        
+        Array.from(tempDiv.childNodes).forEach(child => highlightNodes(child));
+        return tempDiv.innerHTML;
     }
 });

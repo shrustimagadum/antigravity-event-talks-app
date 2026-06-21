@@ -1025,3 +1025,14 @@ body.light-theme .update-item.selected {
     background: rgba(99, 102, 241, 0.04);
 }
 
+/* Premium Highlight styling */
+mark {
+    background-color: rgba(99, 102, 241, 0.45);
+    color: #ffffff;
+    border-radius: 4px;
+    padding: 0.05rem 0.2rem;
+}
+body.light-theme mark {
+    background-color: rgba(99, 102, 241, 0.2);
+    color: #4f46e5;
+}
