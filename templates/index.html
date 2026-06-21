@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore and share the latest Google Cloud BigQuery release notes and updates. Stay up to date with data warehouse features, fixes, and changes.">
+    <title>BigQuery Release Pulse - Interactive Feed & Share Hub</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/styles.css">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="glow-bg"></div>
+    
+    <header class="app-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i data-lucide="database" class="icon-db"></i>
+                    <i data-lucide="sparkles" class="icon-sparkle"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>BigQuery Release Pulse</h1>
+                    <p>Real-time updates, curated & shareable</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="refresh-btn" class="btn btn-primary" title="Refresh Release Notes">
+                    <i data-lucide="refresh-cw" id="spinner"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="dashboard-layout">
+            
+            <!-- Feed Control and Content Column -->
+            <section class="feed-column">
+                <div class="control-panel">
+                    <div class="search-box">
+                        <i data-lucide="search" class="search-icon"></i>
+                        <input type="text" id="search-input" placeholder="Search updates (e.g., JSON, partitioning, ML)..." autocomplete="off">
+                        <button id="clear-search" class="clear-btn" style="display: none;">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="filter-row">
+                        <span class="filter-label">Filter by type:</span>
+                        <div class="filter-tags" id="type-filters">
+                            <button class="filter-tag active" data-type="all">All Updates</button>
+                            <button class="filter-tag" data-type="feature"><span class="badge feature-badge"></span>Feature</button>
+                            <button class="filter-tag" data-type="changed"><span class="badge changed-badge"></span>Changed</button>
+                            <button class="filter-tag" data-type="deprecated"><span class="badge deprecated-badge"></span>Deprecated</button>
+                            <button class="filter-tag" data-type="fixed"><span class="badge fixed-badge"></span>Fixed</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feed Container -->
+                <div class="feed-container" id="feed-container">
+                    <div class="loading-state">
+                        <div class="pulse-loader"></div>
+                        <p>Fetching the latest release notes from Google Cloud...</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Sticky Share Composer Column -->
+            <aside class="share-column">
+                <div class="share-card-container">
+                    <div class="share-card" id="share-card">
+                        
+                        <!-- Empty State -->
+                        <div class="share-empty-state" id="share-empty-state">
+                            <div class="share-empty-icon">
+                                <i data-lucide="twitter"></i>
+                            </div>
+                            <h3>Share Hub</h3>
+                            <p>Click on any specific update item or bullet in the release notes list to automatically draft a tweet with hashtags.</p>
+                        </div>
+                        
+                        <!-- Composer State (Hidden initially) -->
+                        <div class="share-composer" id="share-composer" style="display: none;">
+                            <div class="composer-header">
+                                <span class="composer-title"><i data-lucide="twitter" class="twitter-icon"></i> Draft Tweet</span>
+                                <button class="btn-close-composer" id="close-composer-btn" title="Clear selection">
+                                    <i data-lucide="x"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="source-preview">
+                                <div class="preview-meta">
+                                    <span class="preview-date" id="composer-source-date">June 17, 2026</span>
+                                    <span class="preview-badge" id="composer-source-badge">Feature</span>
+                                </div>
+                                <p class="preview-text" id="composer-source-text">Source note content goes here...</p>
+                            </div>
+                            
+                            <div class="composer-body">
+                                <label for="tweet-textarea">Customize your post:</label>
+                                <textarea id="tweet-textarea" rows="6" maxlength="280"></textarea>
+                                <div class="composer-footer">
+                                    <div class="char-counter">
+                                        <span id="char-count">0</span>/280
+                                    </div>
+                                    <div class="hashtag-helper">
+                                        <button class="hashtag-btn" data-tag="#BigQuery">#BigQuery</button>
+                                        <button class="hashtag-btn" data-tag="#GoogleCloud">#GoogleCloud</button>
+                                        <button class="hashtag-btn" data-tag="#DataEngineering">#DataEng</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-tweet" id="tweet-btn">
+                                <i data-lucide="send"></i>
+                                <span>Tweet this Update</span>
+                            </button>
+                        </div>
+                        
+                    </div>
+                </div>
+            </aside>
+            
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2026 BigQuery Release Pulse. Source feeds fetched directly from Google Cloud Platform.</p>
+    </footer>
+
+    <!-- App Script -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
