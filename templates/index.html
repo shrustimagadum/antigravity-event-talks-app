@@ -34,6 +34,18 @@
             </div>
             
             <div class="header-actions">
+                <div class="theme-toggle-container">
+                    <i data-lucide="moon" class="toggle-icon dark-icon"></i>
+                    <label class="theme-switch" for="theme-checkbox">
+                        <input type="checkbox" id="theme-checkbox">
+                        <span class="slider round"></span>
+                    </label>
+                    <i data-lucide="sun" class="toggle-icon light-icon"></i>
+                </div>
+                <button id="export-csv-btn" class="btn btn-secondary" title="Export current feed to CSV">
+                    <i data-lucide="download"></i>
+                    <span>Export CSV</span>
+                </button>
                 <button id="refresh-btn" class="btn btn-primary" title="Refresh Release Notes">
                     <i data-lucide="refresh-cw" id="spinner"></i>
                     <span>Refresh</span>

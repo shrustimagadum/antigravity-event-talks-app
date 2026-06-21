@@ -32,6 +32,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const tweetBtn = document.getElementById('tweet-btn');
     const hashtagBtns = document.querySelectorAll('.hashtag-btn');
 
+    // Additional DOM Elements for new features
+    const themeCheckbox = document.getElementById('theme-checkbox');
+    const exportCsvBtn = document.getElementById('export-csv-btn');
+
+    // Load persisted theme preference
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-theme');
+        themeCheckbox.checked = true;
+    } else {
+        document.body.classList.remove('light-theme');
+        themeCheckbox.checked = false;
+    }
+
+    // Theme toggle switch listener
+    themeCheckbox.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            document.body.classList.add('light-theme');
+            localStorage.setItem('theme', 'light');
+        } else {
+            document.body.classList.remove('light-theme');
+            localStorage.setItem('theme', 'dark');
+        }
+    });
+
+    // CSV Export button listener
+    exportCsvBtn.addEventListener('click', exportToCSV);
+
     // Initialize Lucide Icons
     lucide.createIcons();
 
@@ -264,11 +292,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     itemEl.className = `update-item ${isSelected ? 'selected' : ''}`;
                     itemEl.innerHTML = `
                         <p>${update.rawHtml}</p>
-                        <div class="share-action-indicator">
-                            <span>Select to Tweet</span>
-                            <i data-lucide="twitter" style="width:14px;height:14px;fill:currentColor;"></i>
+                        <div class="item-actions">
+                            <button class="copy-btn" title="Copy text to clipboard">
+                                <i data-lucide="copy" style="width:14px;height:14px;"></i>
+                            </button>
+                            <div class="share-action-indicator">
+                                <span class="action-label">Select to Tweet</span>
+                                <i data-lucide="twitter" style="width:14px;height:14px;fill:currentColor;"></i>
+                            </div>
                         </div>
                     `;
+
+                    // Handle selection event
+                    // Handle clipboard copy button click
+                    const copyBtn = itemEl.querySelector('.copy-btn');
+                    copyBtn.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent trigger card selection
+                        navigator.clipboard.writeText(update.text).then(() => {
+                            const icon = copyBtn.querySelector('i');
+                            icon.setAttribute('data-lucide', 'check');
+                            copyBtn.classList.add('copied');
+                            lucide.createIcons();
+                            
+                            setTimeout(() => {
+                                icon.setAttribute('data-lucide', 'copy');
+                                copyBtn.classList.remove('copied');
+                                lucide.createIcons();
+                            }, 2000);
+                        }).catch(err => {
+                            console.error('Failed to copy to clipboard:', err);
+                        });
+                    });
 
                     // Handle selection event
                     itemEl.addEventListener('click', (e) => {
@@ -453,5 +507,49 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         lucide.createIcons();
+    }
+
+    // Export current filtered results to CSV format
+    function exportToCSV() {
+        const csvRows = [];
+        
+        // CSV Header
+        csvRows.push(['Date', 'Type', 'Content', 'Link'].map(val => `"${val.replace(/"/g, '""')}"`).join(','));
+        
+        // Loop through cards and filter items exactly as shown in rendering
+        state.parsedReleases.forEach(card => {
+            const filteredUpdates = card.updates.filter(update => {
+                const matchesType = state.filters.type === 'all' || update.type === state.filters.type;
+                const matchesSearch = !state.filters.search || update.text.toLowerCase().includes(state.filters.search);
+                return matchesType && matchesSearch;
+            });
+            
+            filteredUpdates.forEach(update => {
+                const row = [
+                    card.date,
+                    update.type,
+                    update.text,
+                    card.link
+                ];
+                csvRows.push(row.map(val => `"${val.replace(/"/g, '""')}"`).join(','));
+            });
+        });
+        
+        // Check if there is data to export beyond header
+        if (csvRows.length <= 1) {
+            alert('No records matching the current filters were found to export.');
+            return;
+        }
+        
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `bigquery_release_notes_${new Date().toISOString().slice(0, 10)}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 });
